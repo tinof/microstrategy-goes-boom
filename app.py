@@ -230,7 +230,15 @@ st.sidebar.header("Scenario & Parameters")
 
 scenario = st.sidebar.selectbox(
     "Scenario preset",
-    ["Custom", "Bull (BTC moon)", "Base (modest BTC)", "Bear (BTC stagnation)"],
+    [
+        "Custom",
+        "Bull (BTC moon)",
+        "Base (modest BTC)",
+        "Bear (BTC stagnation)",
+        "Stress (slow bleed)",
+        "Collapse ~2030 (medium-hard bear)",
+        "Collapse ~2028 (hard crash)",
+    ],
 )
 
 # Default parameters
@@ -239,15 +247,66 @@ default_btc_holdings = 640_000.0
 default_debt_nominal = 8_000_000_000.0
 default_pref_nominal = 3_600_000_000.0
 
-# Scenario-based BTC growth defaults
+# Scenario-based defaults (can still be overridden via UI)
+default_growth = 0.10
+default_operating_burn = 500_000_000.0
+default_pref_nominal = default_pref_nominal
+default_pref_coupon_pct = 9.0
+default_debt_nominal = default_debt_nominal
+default_issuance_capacity = 0.30
+default_lambda = 1.2
+
 if scenario == "Bull (BTC moon)":
     default_growth = 0.20
+    default_operating_burn = 400_000_000.0
+    default_pref_nominal = 3_000_000_000.0
+    default_pref_coupon_pct = 8.0
+    default_debt_nominal = 7_000_000_000.0
+    default_issuance_capacity = 0.50
+    default_lambda = 1.5
 elif scenario == "Base (modest BTC)":
     default_growth = 0.08
+    default_operating_burn = 500_000_000.0
+    default_pref_nominal = 3_600_000_000.0
+    default_pref_coupon_pct = 9.0
+    default_debt_nominal = 8_000_000_000.0
+    default_issuance_capacity = 0.30
+    default_lambda = 1.2
 elif scenario == "Bear (BTC stagnation)":
-    default_growth = 0.0
-else:
-    default_growth = 0.10
+    default_growth = 0.00
+    default_operating_burn = 600_000_000.0
+    default_pref_nominal = 4_500_000_000.0
+    default_pref_coupon_pct = 10.0
+    default_debt_nominal = 8_500_000_000.0
+    default_issuance_capacity = 0.20
+    default_lambda = 1.0
+elif scenario == "Stress (slow bleed)":
+    # Flat BTC, premium gone, structure eats BTC but may not collapse immediately
+    default_growth = 0.00
+    default_operating_burn = 700_000_000.0
+    default_pref_nominal = 5_000_000_000.0
+    default_pref_coupon_pct = 10.0
+    default_debt_nominal = 8_000_000_000.0
+    default_issuance_capacity = 0.15
+    default_lambda = 1.0
+elif scenario == "Collapse ~2030 (medium-hard bear)":
+    # BTC decays, obligations heavy, issuance constrained – collapse likely near 2030 wall
+    default_growth = -0.20
+    default_operating_burn = 900_000_000.0
+    default_pref_nominal = 9_000_000_000.0
+    default_pref_coupon_pct = 12.0
+    default_debt_nominal = 8_000_000_000.0
+    default_issuance_capacity = 0.05
+    default_lambda = 0.7
+elif scenario == "Collapse ~2028 (hard crash)":
+    # Aggressive bear and funding shut – early collapse around first big maturities
+    default_growth = -0.30
+    default_operating_burn = 1_300_000_000.0
+    default_pref_nominal = 11_000_000_000.0
+    default_pref_coupon_pct = 16.0
+    default_debt_nominal = 8_000_000_000.0
+    default_issuance_capacity = 0.02
+    default_lambda = 0.5
 
 start_year = st.sidebar.number_input("Start year", value=2025, step=1)
 n_years = st.sidebar.slider("Years to simulate", min_value=3, max_value=20, value=10)
@@ -282,7 +341,10 @@ preferred_nominal_start = st.sidebar.number_input(
 )
 
 preferred_coupon_pct = st.sidebar.number_input(
-    "Preferred coupon rate (%)", value=9.0, step=0.5, min_value=0.0
+    "Preferred coupon rate (%)",
+    value=default_pref_coupon_pct,
+    step=0.5,
+    min_value=0.0,
 )
 preferred_coupon = preferred_coupon_pct / 100.0
 
@@ -293,7 +355,7 @@ debt_interest_rate = debt_interest_pct / 100.0
 
 operating_cash_burn = st.sidebar.number_input(
     "Operating cash burn per year (USD)",
-    value=500_000_000.0,
+    value=default_operating_burn,
     step=50_000_000.0,
     min_value=0.0,
 )
@@ -302,13 +364,13 @@ issuance_capacity_pct = st.sidebar.slider(
     "Max new capital per year (% of equity market cap)",
     min_value=0.0,
     max_value=1.0,
-    value=0.30,
+    value=float(default_issuance_capacity),
     step=0.05,
 )
 
 equity_premium_lambda = st.sidebar.number_input(
     "Equity premium multiple over NAV (λ)",
-    value=1.2,
+    value=default_lambda,
     step=0.1,
     min_value=0.0,
 )
@@ -351,19 +413,40 @@ df, collapse_year, collapse_reason = simulate_mstr_ponzi(
 # -----------------------------
 st.subheader("Simulation Summary")
 
+# Use the last valid row (in case of early collapse with NaNs afterwards)
+last_valid_idx = df["BTC_Price"].last_valid_index()
+last_row = df.loc[last_valid_idx] if last_valid_idx is not None else df.iloc[-1]
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("Final BTC price", f"${df['BTC_Price'].iloc[-1]:,.0f}")
+    st.metric("Last BTC price", f"${last_row['BTC_Price']:,.0f}")
 with col2:
-    st.metric("Final BTC holdings", f"{df['BTC_Holdings'].iloc[-1]:,.0f} BTC")
+    st.metric("Last BTC holdings", f"{last_row['BTC_Holdings']:,.0f} BTC")
 with col3:
-    st.metric("Final NAV (Equity)", f"${df['NAV_Equity'].iloc[-1]:,.0f}")
+    st.metric("Last NAV (Equity)", f"${last_row['NAV_Equity']:,.0f}")
 
 if collapse_year is not None:
     st.error(f"🧨 Model collapse year: {collapse_year} – {collapse_reason}")
+    st.markdown(
+        """
+**Interpretation:** under this parameter set, the structure can no longer roll its
+obligations with new capital and available BTC. Either asset value has fallen below
+senior claims, or even liquidating all BTC is insufficient to plug the funding gap
+in that year. In a real-world analogue, that is the zone of distressed refinance,
+forced BTC liquidation, or formal restructuring where common equity is at severe risk.
+        """
+    )
 else:
     st.success("No model collapse within the simulated horizon.")
+    st.markdown(
+        """
+**Interpretation:** within the simulated window, new capital plus BTC sales are
+sufficient to meet cash obligations. That does *not* mean the structure is safe,
+but that under these assumptions it can continue to roll forward without a hard
+funding stop.
+        """
+    )
 
 st.dataframe(df.set_index("Year"))
 
@@ -390,6 +473,15 @@ ax2.set_xlabel("Year")
 ax2.set_ylabel("USD")
 ax2.grid(True)
 ax2.legend()
+if collapse_year is not None:
+    ax2.axvline(collapse_year, linestyle="--", linewidth=1)
+    ax2.text(
+        collapse_year,
+        max(df["Asset_Value"].max(), df["Senior_Claims"].max()) * 0.9,
+        "Collapse",
+        rotation=90,
+        verticalalignment="top",
+    )
 st.pyplot(fig2)
 
 # Plot 3: Obligations vs Capital Inflows
@@ -401,6 +493,8 @@ ax3.set_xlabel("Year")
 ax3.set_ylabel("USD per year")
 ax3.grid(True)
 ax3.legend()
+if collapse_year is not None:
+    ax3.axvline(collapse_year, linestyle="--", linewidth=1)
 st.pyplot(fig3)
 
 # Plot 4: Funding gap and BTC sold
@@ -414,20 +508,30 @@ ax4_2 = ax4.twinx()
 ax4_2.plot(df["Year"], df["BTC_Sold"], linestyle="--", label="BTC Sold (coins)")
 ax4_2.set_ylabel("BTC Sold (coins)")
 fig4.legend(loc="upper left")
+if collapse_year is not None:
+    ax4.axvline(collapse_year, linestyle="--", linewidth=1)
 st.pyplot(fig4)
 
 st.markdown(
     """
-### How to interpret this
+### How to interpret this (through a collapse lens)
 
-- **Survival region:** as long as *Capital Inflows ≥ Obligations* and BTC holdings remain high,
-  the system can keep rolling.
+- **Survival region:** as long as *Capital Inflows ≥ Obligations* and BTC holdings remain large,
+  the structure can keep rolling – it can always find enough new money and/or sell a manageable
+  amount of BTC to meet coupons, opex, and maturities.
 - **Stress region:** when Obligations start to approach or exceed Inflows, you’ll see
-  **Funding_Gap > 0** and **BTC_Sold > 0** — the structure starts eating its own collateral.
+  **Funding_Gap > 0** and **BTC_Sold > 0** – the structure is forced to eat into its BTC stack.
+  If this persists and BTC does not recover, NAV compresses and senior claims dominate.
 - **Collapse:** when equity NAV goes to zero *or* you hit a year where even selling all BTC cannot
-  plug the gap, the model flags a collapse year.
+  plug the gap, the model flags a **collapse year**. In economic terms that is the point where
+  some combination of:
+  - distressed refinancing,
+  - massively dilutive rescue equity,
+  - or formal restructuring
+  would be needed, with common equity at high risk of being impaired or wiped.
 
-You can tweak BTC growth, preferred coupons, issuance capacity, etc., to see which combinations
-of assumptions make the structure surprisingly robust vs. obviously doomed.
-"""
+By toggling scenarios and tweaking BTC growth, preferred coupons, issuance capacity, and the
+maturity wall, you can explore which combinations of variables make the system surprisingly
+robust vs. clearly fragile.
+    """
 )
