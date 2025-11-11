@@ -208,20 +208,58 @@ def simulate_mstr_ponzi(
 # Streamlit UI
 # -----------------------------
 st.set_page_config(
-    page_title="MSTR / Strategy Ponzi-Style Model",
+    page_title="MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?",
+    page_icon="🧨",
     layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'About': "An interactive model exploring MicroStrategy/Strategy's leveraged Bitcoin capital structure through a Ponzi-lens."
+    }
 )
 
-st.title("MSTR / Strategy Inc. – Leveraged BTC / Ponzi-Style Capital Model (Toy)")
+# Add Open Graph and social media meta tags for better link previews
+st.markdown("""
+<head>
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?" />
+    <meta name="description" content="Interactive simulation: Test different scenarios to see when (or if) MicroStrategy's leveraged Bitcoin strategy collapses. Adjust BTC prices, debt levels, and market conditions." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://microstrategy-goes-boom-neydsqr7vhwwa2wzgrdksj.streamlit.app/" />
+    <meta property="og:title" content="MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?" />
+    <meta property="og:description" content="🧨 Interactive simulation: Test different scenarios to see when (or if) MicroStrategy's leveraged Bitcoin strategy collapses. Bull or Bear - Run your own scenarios!" />
+    <meta property="og:image" content="https://em-content.zobj.net/source/apple/391/bomb_1f4a3.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://microstrategy-goes-boom-neydsqr7vhwwa2wzgrdksj.streamlit.app/" />
+    <meta property="twitter:title" content="MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?" />
+    <meta property="twitter:description" content="🧨 Interactive simulation: Test different scenarios to see when (or if) MicroStrategy's leveraged Bitcoin strategy collapses. Bull or Bear - Run your own scenarios!" />
+    <meta property="twitter:image" content="https://em-content.zobj.net/source/apple/391/bomb_1f4a3.png" />
+    
+    <!-- WhatsApp / Telegram -->
+    <meta property="og:site_name" content="MSTR Goes Boom Simulator" />
+</head>
+""", unsafe_allow_html=True)
+
+st.title("🧨 MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?")
 
 st.markdown(
     """
-This is a **toy, deterministic model** of a MicroStrategy/Strategy-style capital structure, 
-viewed through a *Ponzi-lens*: the system survives as long as **new capital inflows** plus 
-existing cash and BTC sales can meet **cash obligations** (opex, coupons, maturities).
+**Will MicroStrategy's leveraged Bitcoin bet survive, or will it go boom?** 💥
 
-It is **not** investment advice, not a precise forecast, and ignores a lot of real-world nuance.
-Use it as an intuition-building sandbox.
+This interactive simulator models MSTR/Strategy's capital structure through a *Ponzi-lens*: 
+the system survives as long as **new capital inflows** plus cash and BTC sales can meet 
+**cash obligations** (opex, coupons, debt maturities).
+
+🎮 **Play with the scenarios** on the left to see what breaks the system:
+- Bull market with Bitcoin mooning? 🚀
+- Bear market with BTC stagnation? 🐻
+- Hard crash with funding frozen? 💀
+
+⚠️ **Disclaimer:** This is a **toy model** – not investment advice, not a forecast. 
+It ignores tons of real-world nuance. Use it as an intuition-building sandbox.
 """
 )
 
