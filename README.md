@@ -104,9 +104,25 @@ The simulation uses a simplified yearly model that tracks:
 microstrategy-goes-boom/
 ├── app.py              # Main Streamlit application
 ├── requirements.txt    # Python dependencies
+├── generate_preview.py # Social media preview image generator
+├── preview.png        # Preview image for social sharing (1200x630)
 ├── README.md          # This file
 └── .gitignore         # Git ignore rules
 ```
+
+## 🌐 Social Media Preview
+
+The app includes optimized Open Graph meta tags for better link previews on WhatsApp, Twitter, Facebook, and other platforms.
+
+### Regenerating the Preview Image
+
+If you want to customize the social media preview image:
+
+```bash
+python generate_preview.py
+```
+
+This creates a 1200x630px preview image optimized for all social platforms.
 
 ## 🛠️ Tech Stack
 

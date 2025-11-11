@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from streamlit_javascript import st_javascript
 
 
 # -----------------------------
@@ -217,31 +218,29 @@ st.set_page_config(
     }
 )
 
-# Add Open Graph and social media meta tags for better link previews
-st.markdown("""
-<head>
-    <!-- Primary Meta Tags -->
-    <meta name="title" content="MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?" />
-    <meta name="description" content="Interactive simulation: Test different scenarios to see when (or if) MicroStrategy's leveraged Bitcoin strategy collapses. Adjust BTC prices, debt levels, and market conditions." />
+# Inject Open Graph meta tags for better social media previews
+st_javascript("""
+    const metaTags = [
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: 'https://microstrategy-goes-boom-neydsqr7vhwwa2wzgrdksj.streamlit.app/' },
+        { property: 'og:title', content: 'MSTR Goes Boom: When Does MicroStrategy\\'s Bitcoin Bet Collapse?' },
+        { property: 'og:description', content: '🧨 Interactive simulation: Test different scenarios to see when (or if) MicroStrategy\\'s leveraged Bitcoin strategy collapses. Bull or Bear - Run your own scenarios!' },
+        { property: 'og:image', content: 'https://raw.githubusercontent.com/konstantinosfotiou/microstrategy-goes-boom/main/preview.png' },
+        { property: 'og:site_name', content: 'MSTR Goes Boom Simulator' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'MSTR Goes Boom: When Does MicroStrategy\\'s Bitcoin Bet Collapse?' },
+        { name: 'twitter:description', content: '🧨 Interactive simulation: Test different scenarios to see when (or if) MicroStrategy\\'s leveraged Bitcoin strategy collapses!' },
+        { name: 'twitter:image', content: 'https://raw.githubusercontent.com/konstantinosfotiou/microstrategy-goes-boom/main/preview.png' }
+    ];
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://microstrategy-goes-boom-neydsqr7vhwwa2wzgrdksj.streamlit.app/" />
-    <meta property="og:title" content="MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?" />
-    <meta property="og:description" content="🧨 Interactive simulation: Test different scenarios to see when (or if) MicroStrategy's leveraged Bitcoin strategy collapses. Bull or Bear - Run your own scenarios!" />
-    <meta property="og:image" content="https://em-content.zobj.net/source/apple/391/bomb_1f4a3.png" />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://microstrategy-goes-boom-neydsqr7vhwwa2wzgrdksj.streamlit.app/" />
-    <meta property="twitter:title" content="MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?" />
-    <meta property="twitter:description" content="🧨 Interactive simulation: Test different scenarios to see when (or if) MicroStrategy's leveraged Bitcoin strategy collapses. Bull or Bear - Run your own scenarios!" />
-    <meta property="twitter:image" content="https://em-content.zobj.net/source/apple/391/bomb_1f4a3.png" />
-    
-    <!-- WhatsApp / Telegram -->
-    <meta property="og:site_name" content="MSTR Goes Boom Simulator" />
-</head>
-""", unsafe_allow_html=True)
+    metaTags.forEach(tag => {
+        const meta = document.createElement('meta');
+        if (tag.property) meta.setAttribute('property', tag.property);
+        if (tag.name) meta.setAttribute('name', tag.name);
+        meta.setAttribute('content', tag.content);
+        document.head.appendChild(meta);
+    });
+""")
 
 st.title("🧨 MSTR Goes Boom: When Does MicroStrategy's Bitcoin Bet Collapse?")
 
