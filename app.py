@@ -295,6 +295,7 @@ Key improvements:
 st.sidebar.header("Configuration")
 
 # Live Data Fetch
+# Live Data Fetch
 if st.sidebar.button("📡 Fetch Live Data"):
     with st.spinner("Fetching from Yahoo Finance..."):
         live_btc, live_mstr, live_shares = fetch_live_data()
@@ -302,7 +303,22 @@ if st.sidebar.button("📡 Fetch Live Data"):
             st.session_state['btc_price'] = live_btc
             st.session_state['mstr_price'] = live_mstr
             st.session_state['shares'] = live_shares
-            st.sidebar.success(f"Fetched! BTC: ${live_btc:,.0f} | MSTR: ${live_mstr:.2f}")
+            
+            # Calculate implied premium
+            # Premium = MSTR Market Cap / (BTC Holdings * BTC Price)
+            # Note: We need to use the current BTC holdings from the input (default 386k)
+            # But since inputs are rendered below, we'll use a safe default or the session state if available
+            current_btc_holdings = 386000.0 
+            
+            mstr_market_cap = live_mstr * live_shares
+            btc_value = live_btc * current_btc_holdings
+            
+            if btc_value > 0:
+                implied_premium = mstr_market_cap / btc_value
+                st.session_state['base_premium'] = float(round(implied_premium, 2))
+                st.sidebar.success(f"Fetched! BTC: ${live_btc:,.0f} | MSTR: ${live_mstr:.2f} | Premium: {implied_premium:.2f}x")
+            else:
+                st.sidebar.success(f"Fetched! BTC: ${live_btc:,.0f} | MSTR: ${live_mstr:.2f}")
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("Quick Scenarios")
