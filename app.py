@@ -276,6 +276,13 @@ def simulate_mstr_monthly(
 st.set_page_config(page_title="MSTR Simulator 2.0", page_icon="🧨", layout="wide")
 
 st.title("🧨 MSTR Simulator 2.0: The Convertible Debt Edition")
+
+# Header Image
+try:
+    st.image("img/musical-chairs.jpeg", use_container_width=True)
+except:
+    pass
+
 st.markdown("""
 **A more accurate simulation of MicroStrategy's leverage mechanics.**
 Key improvements:
@@ -297,19 +304,36 @@ if st.sidebar.button("📡 Fetch Live Data"):
             st.session_state['shares'] = live_shares
             st.sidebar.success(f"Fetched! BTC: ${live_btc:,.0f} | MSTR: ${live_mstr:.2f}")
 
+st.sidebar.markdown("---")
+st.sidebar.subheader("Quick Scenarios")
+
+# Music Stops Image
+try:
+    st.sidebar.image("img/stop-music.jpg", use_container_width=True)
+except:
+    pass
+
+if st.sidebar.button("💀 \"The Music Stops\" (Liquidity Freeze)"):
+    st.session_state['issuance_cap'] = 0.0
+    st.session_state['btc_growth'] = 0.0
+    st.session_state['cash_start'] = 50.0 # $50M
+    st.session_state['base_premium'] = 1.0
+    st.session_state['dynamic_premium'] = True
+    st.sidebar.warning("Scenario Loaded: Liquidity Freeze! (0% Issuance, Low Cash)")
+
 # Inputs
 with st.sidebar.expander("Market Assumptions", expanded=True):
     btc_start = st.number_input("BTC Start Price ($)", value=st.session_state.get('btc_price', 98000.0))
-    btc_growth = st.slider("BTC Annual Growth (%)", -50, 100, 15) / 100.0
-    base_premium = st.slider("Target Premium (NAV Multiplier)", 0.5, 3.0, 2.0, 0.1)
-    dynamic_premium = st.checkbox("Dynamic Premium (Compresses in downturns)", value=True)
+    btc_growth = st.slider("BTC Annual Growth (%)", -50, 100, int(st.session_state.get('btc_growth', 15.0)), key='btc_growth_slider') / 100.0
+    base_premium = st.slider("Target Premium (NAV Multiplier)", 0.5, 3.0, float(st.session_state.get('base_premium', 2.0)), 0.1, key='premium_slider')
+    dynamic_premium = st.checkbox("Dynamic Premium (Compresses in downturns)", value=st.session_state.get('dynamic_premium', True), key='dyn_prem_box')
 
 with st.sidebar.expander("MSTR Financials", expanded=False):
     btc_holdings = st.number_input("BTC Holdings", value=386000.0) # Nov 2024 approx
-    cash_start = st.number_input("Initial Cash ($M)", value=50.0) * 1_000_000
+    cash_start = st.number_input("Initial Cash ($M)", value=st.session_state.get('cash_start', 50.0)) * 1_000_000
     shares_start = st.number_input("Shares Outstanding", value=st.session_state.get('shares', 225_000_000))
     ops_burn = st.number_input("Annual Ops Burn ($M)", value=100.0) * 1_000_000
-    issuance_cap = st.slider("Max Annual Issuance (% of Market Cap)", 0, 100, 25) / 100.0
+    issuance_cap = st.slider("Max Annual Issuance (% of Market Cap)", 0, 100, int(st.session_state.get('issuance_cap', 25.0)), key='issuance_slider') / 100.0
 
 with st.sidebar.expander("Debt Structure (Advanced)", expanded=False):
     st.caption("Define Convertible Notes")
