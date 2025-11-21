@@ -295,7 +295,7 @@ if st.sidebar.button("📡 Fetch Live Data"):
             st.session_state['btc_price'] = live_btc
             st.session_state['mstr_price'] = live_mstr
             st.session_state['shares'] = live_shares
-            st.sidebar.success(f"Fetched! BTC: ${live_btc:,.0f}, MSTR: ${live_mstr:,.2f}")
+            st.sidebar.success(f"Fetched! BTC: ${live_btc:,.0f} | MSTR: ${live_mstr:.2f}")
 
 # Inputs
 with st.sidebar.expander("Market Assumptions", expanded=True):
