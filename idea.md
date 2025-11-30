@@ -1,5 +1,3 @@
-Is this accurate description of Microstrategy:
-
 Don't Buy MicroStrategy, Inc - Mathematically Going To Zero
 How a Leveraged Bitcoin Bet and a Fading Business Have Created a Bubble Destined to Pop - An In-Depth Analysis of MSTR's Strategy, Schemes, Fundamentals, and Outcomes.
 Strategist and Architect
