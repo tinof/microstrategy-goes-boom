@@ -1,6 +1,6 @@
 # MicroStrategy Goes Boom 💥
 
-A **toy, deterministic model** of MicroStrategy/Strategy Inc.'s capital structure, viewed through a *Ponzi-lens*. This interactive Streamlit app simulates how the company's leveraged Bitcoin strategy could evolve under different scenarios.
+A **toy, deterministic model** of MicroStrategy/Strategy Inc.'s capital structure, viewed through a ~~Ponzi-lens~~ *speculative leverage model*. This interactive Streamlit app simulates how the company's leveraged Bitcoin strategy could evolve under different scenarios.
 
 ## 🎯 What This Does
 
